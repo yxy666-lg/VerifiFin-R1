@@ -1,0 +1,24 @@
+﻿{
+  "counts": {
+    "prm": 6683,
+    "grpo": 6683,
+    "eval": 48
+  },
+  "unique_questions": {
+    "prm": 6599,
+    "grpo": 6599,
+    "eval": 48
+  },
+  "overlap": {
+    "prm_eval": 0,
+    "grpo_eval": 0,
+    "prm_grpo": 6599
+  },
+  "prm_step_labels": {
+    "-1": 1703,
+    "0": 1978,
+    "1": 30502
+  },
+  "eval_with_answer": 48,
+  "fingerprint": "efec34993ee0e555"
+}

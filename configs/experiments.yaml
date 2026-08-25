@@ -1,0 +1,26 @@
+# 最小可信实验矩阵。每个训练实验至少运行 seeds=[42, 43, 44]。
+seeds: [42, 43, 44]
+models:
+  - name: base
+    sft: false
+    grpo: false
+  - name: sft
+    sft: true
+    grpo: false
+  - name: grpo_answer_only
+    reward: {format: 0.0, process: 0.0, answer: 1.0, verifier: 0.0}
+  - name: grpo_process_only
+    reward: {format: 0.0, process: 1.0, answer: 0.0, verifier: 0.0}
+  - name: grpo_format_only
+    reward: {format: 1.0, process: 0.0, answer: 0.0, verifier: 0.0}
+  - name: grpo_hybrid
+    reward: {format: 0.10, process: 0.55, answer: 0.25, verifier: 0.10}
+best_of_n_controls: [greedy, sampled_first, random_rerank, prm_rerank, oracle_pass_at_n]
+report:
+  - answer_accuracy
+  - process_macro_f1
+  - prm_ece
+  - verifier_accuracy
+  - response_length
+  - reward_hacking_rate
+statistics: [mean_std_across_seeds, paired_bootstrap_95ci, mcnemar_exact]

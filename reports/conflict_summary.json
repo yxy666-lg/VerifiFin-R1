@@ -1,0 +1,23 @@
+{
+  "disagreements": 112,
+  "direction_counts": {
+    "judge_negative_rule_positive": 99,
+    "judge_positive_rule_negative": 13
+  },
+  "heuristic_tag_counts": {
+    "percentage": 63,
+    "unit": 105,
+    "formula_chain": 103,
+    "tax_rule": 40,
+    "unsupported_assumption": 59,
+    "option_mismatch": 45,
+    "rounding": 7
+  },
+  "important_caveat": "冲突不等于 Judge 错误；必须填写 human_verdict 后才能计算真实性能。",
+  "allowed_human_verdicts": [
+    "judge_correct",
+    "rule_correct",
+    "both_wrong",
+    "ambiguous"
+  ]
+}

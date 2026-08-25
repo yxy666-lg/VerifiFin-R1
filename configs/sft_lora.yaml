@@ -1,0 +1,68 @@
+# Fin-R1 SFT 训练配置
+# 框架：LLaMA-Factory (你 DSW 上跑过)
+# 模型：Qwen2.5-7B-Instruct
+# 显卡：A100 40GB / RTX 4090 24GB
+#
+# ⚠️ 数据准备：先跑
+#   python src/data_prep_sft.py --task fineval fin_corpus template --output_dir data/sft
+# 然后在 LLaMA-Factory 里执行：
+#   cd LLaMA-Factory
+#   cp /path/to/fin-r1/data/sft/*.jsonl data/
+#   cp /path/to/fin-r1/data/sft/dataset_info.json data/
+#   cp /path/to/fin-r1/configs/sft_lora.yaml examples/train/lora/
+#   llamafactory-cli train examples/train/lora/sft_lora.yaml
+# dataset_dir 留空=用 LLaMA-Factory 自带的 data/ 目录（文件已拷进去）
+
+### model
+model_name_or_path: Qwen/Qwen2.5-7B-Instruct
+trust_remote_code: true
+# GRPO 阶段用 adapter_name_or_path 指定 SFT checkpoint，SFT 阶段留空
+adapter_name_or_path: null
+
+### method
+stage: sft
+do_train: true
+finetuning_type: lora
+lora_target: all
+lora_rank: 64
+lora_alpha: 128
+lora_dropout: 0.05
+
+### dataset
+dataset: finance_sft
+eval_dataset: finance_sft_val    # 独立验证集（data_prep_sft 已切分）
+dataset_dir: data                # LLaMA-Factory 的 data/ 目录（jsonl + dataset_info.json 已拷入）
+template: qwen
+cutoff_len: 2048
+overwrite_cache: true
+preprocessing_num_workers: 16
+packing: false
+
+### output
+output_dir: results/sft
+logging_steps: 10
+save_steps: 500
+plot_loss: true
+
+### train
+per_device_train_batch_size: 4
+gradient_accumulation_steps: 4    # effective batch = 4*4 = 16
+learning_rate: 1.5e-4
+num_train_epochs: 3.0
+lr_scheduler_type: cosine
+warmup_ratio: 0.05
+bf16: true
+ddp_timeout: 180000000
+flash_attn: auto                  # A100 支持 FA2
+
+### eval
+val_size: 0                       # 已用独立验证集，不再从训练集切
+per_device_eval_batch_size: 4
+eval_strategy: steps
+eval_steps: 500
+
+### A100 额外优化
+gradient_checkpointing: true
+gradient_checkpointing_kwargs:
+  use_reentrant: false
+dataloader_num_workers: 8

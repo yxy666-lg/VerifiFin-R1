@@ -1,0 +1,2 @@
+{"formula":"simple_interest","inputs":{"principal":10000,"rate":"5%","periods":2},"claimed":1000,"unit":"CNY"}
+{"formula":"accounting_equation","inputs":{"assets":1000,"liabilities":600,"equity":400}}

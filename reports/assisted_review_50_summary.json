@@ -1,0 +1,12 @@
+{
+  "review_type": "model_assisted_not_human_gold",
+  "selected": 50,
+  "all_judge_positive_rule_negative": 13,
+  "sampled_judge_negative_rule_positive": 37,
+  "verdict_counts": {
+    "parser_or_arithmetic_conflict": 12,
+    "rule_likely_correct": 1,
+    "judge_likely_correct": 37
+  },
+  "expert_review_required": 13
+}

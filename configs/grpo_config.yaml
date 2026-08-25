@@ -1,0 +1,55 @@
+# Fin-R1 GRPO 对齐训练配置
+# 框架：TRL GRPOTrainer（通过 src/grpo_train.py 调用，本文件是参数对照说明）
+# 前置：SFT 完成 + PRM 数据构建完成 + GRPO prompt 集已生成
+#
+# 生成 GRPO prompt 集：
+#   python src/data_prep_prm.py --mode grpo_prompts --trajectories data/prm/finance_prm.jsonl
+#
+# 训练（Reward = PRM 模型，推荐）：
+#   python src/grpo_train.py \
+#     --base_model Qwen/Qwen2.5-7B-Instruct \
+#     --sft_adapter results/sft/checkpoint-xxx \
+#     --prompt_file data/grpo/prompts.jsonl \
+#     --prm_model results/prm/final \
+#     --output_dir results/grpo
+#
+# 训练（Reward = LLM-as-a-Judge，快速验证管线）：
+#   python src/grpo_train.py \
+#     --base_model Qwen/Qwen2.5-7B-Instruct \
+#     --sft_adapter results/sft/checkpoint-xxx \
+#     --prompt_file data/grpo/prompts.jsonl \
+#     --api_key sk-xxx --api_base https://api.deepseek.com/v1 --judge_model deepseek-chat \
+#     --enable_soft_judge --output_dir results/grpo
+
+# ===== 模型 =====
+base_model: Qwen/Qwen2.5-7B-Instruct    # 基座模型（必须在命令行 --base_model 传入）
+sft_adapter: results/sft/checkpoint-xxx # SFT LoRA adapter（--sft_adapter）
+load_in_4bit: true                      # 4bit 量化省显存（24GB 卡也能跑）
+
+# ===== Reward（二选一）=====
+# 推荐：训练好的 PRM 模型（本地、快、无 API 成本）
+#   --prm_model results/prm/final
+# 备选：LLM-as-a-Judge（需 API key）
+#   --enable_soft_judge --api_key sk-xxx --api_base https://api.deepseek.com/v1 --judge_model deepseek-chat
+# Reward：答案0.25 + 上下文PRM/Judge 0.55 + 规则验算0.10 + 格式0.10 - 投机惩罚0.15
+# 消融时用 --format_weight/--process_weight/--answer_weight/--verifier_weight 单独控制。
+
+# ===== GRPO 训练参数（对应 TRL GRPOConfig）=====
+per_device_train_batch_size: 2    # --batch_size
+gradient_accumulation_steps: 4    # --grad_accum
+num_generations: 8                # 每组采样数 / group size（--num_generations）
+learning_rate: 5e-5               # --lr（GRPO 学习率 < SFT）
+beta: 0.04                        # KL 散度系数（--beta）
+temperature: 0.8                  # 采样温度
+top_p: 0.95
+max_prompt_length: 1024
+max_completion_length: 1024
+num_train_epochs: 3               # GRPO 收敛快，3 轮左右
+lr_scheduler_type: cosine
+warmup_ratio: 0.05
+bf16: true
+gradient_checkpointing: true
+
+# ===== 显存估算（7B + LoRA）=====
+# A100 40GB：batch=2 × group=8 顺畅
+# 4090 24GB：batch=2 × group=4 或 group=8 需 4bit + 缩短 max_completion_length 到 512

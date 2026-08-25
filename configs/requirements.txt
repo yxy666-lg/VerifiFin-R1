@@ -1,0 +1,52 @@
+# Fin-R1 环境依赖
+# 租卡环境：A100 40GB / RTX 4090 24GB
+# Python: 3.10+（推荐 3.10）
+# CUDA: 12.1+
+
+# ========== 核心框架 ==========
+# GRPO（TRL GRPOTrainer）需要 trl>=0.12 + 对应版本的 transformers/peft
+# ⚠️ 按显卡选 torch 版本：
+#    A100 / 4090 / 3090：torch 2.3~2.5 + CUDA 12.1（下面这行）
+#    RTX 5090 (Blackwell)：必须 torch>=2.7 + CUDA 12.8，改这行为 torch>=2.7.0
+torch>=2.3.0,<2.6.0
+transformers>=4.46.0,<4.52.0
+datasets>=2.19.0
+accelerate>=0.30.0
+peft>=0.13.0
+trl>=0.12.0,<0.15.0
+
+# ========== 训练框架（二选一） ==========
+# LLaMA-Factory（你最熟，DSW 上跑过）
+# 注意：LLaMA-Factory 需单独 git clone + pip install，不在此文件里 pip
+# Unsloth（GRPO 支持更好，更快）
+unsloth>=2024.12.0
+
+# ========== 数据 ==========
+pandas>=2.0.0
+numpy>=1.24.0
+scikit-learn>=1.3.0
+
+# ========== 推理加速 ==========
+# ⚠️ RTX 5090 (Blackwell) 的 4bit 量化需要 bitsandbytes>=0.46
+bitsandbytes>=0.46.0
+vllm>=0.4.0
+
+# ========== 评测 ==========
+opencompass  # 用于 FinEval 评测（可选，也可以用 lm-evaluation-harness）
+nltk>=3.8.0
+jieba>=0.42.0
+
+# ========== 工具 ==========
+tqdm>=4.66.0
+wandb>=0.16.0          # 训练日志可视化
+huggingface_hub>=0.23.0
+sentencepiece>=0.2.0
+protobuf>=4.25.0
+einops>=0.7.0
+
+# ========== API 调用（PRM 数据构建用） ==========
+openai>=1.30.0         # GPT-4 / DeepSeek API
+
+# ========== 可视化 ==========
+matplotlib>=3.7.0
+seaborn>=0.12.0
